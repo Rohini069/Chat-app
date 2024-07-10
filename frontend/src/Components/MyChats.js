@@ -1,10 +1,11 @@
-import { Text, useToast } from "@chakra-ui/react";
+import { Text, useToast, Stack } from "@chakra-ui/react";
 import { Box } from "@chakra-ui/layout";
 import React, { useEffect, useState } from "react";
 import { ChatState } from "../Context/ChatProvider";
 import axios from "axios";
+import { getSender } from "../config/ChatLogic";
 
-const MyChats = () => {
+const MyChats = ({ fetchAgain }) => {
   const [loggedUser, setLoggedUser] = useState("");
   const { user, selectedChat, setSelectedChat, chats, setChats } = ChatState();
   const toast = useToast();
@@ -42,12 +43,12 @@ const MyChats = () => {
   useEffect(() => {
     setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
     fetchChats();
-  }, []);
+  }, [fetchAgain]);
 
   return (
     <>
       <Box
-        d={{ base: selectedChat ? "none" : "flex", md: "flex" }}
+        display={{ base: selectedChat ? "none" : "flex", md: "flex" }}
         flexDir="column"
         alignItems="center"
         p={3}
@@ -56,28 +57,56 @@ const MyChats = () => {
         borderRadius="lg"
         borderWidth="1px"
       >
-        <Text fontSize="2xl" mb={3}>
-          My Chats
-        </Text>
-        {chats ? (
-          chats.map((chat) => (
-            <Box
-              key={chat._id}
-              p={2}
-              w="100%"
-              mb={2}
-              bg="gray.100"
-              borderRadius="lg"
-              onClick={() => setSelectedChat(chat)}
-              cursor="pointer"
-              _hover={{ bg: "gray.200" }}
-            >
-              <Text>{chat.chatName}</Text>
-            </Box>
-          ))
-        ) : (
-          <Text>Loading chats...</Text>
-        )}
+        <Box
+          pb={3}
+          px={3}
+          fontSize={{ base: "28px", md: "30px" }}
+          fontFamily="Work sans"
+          display="flex"
+          w="100%"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Text fontSize="2xl" mb={3}>
+            My Chats
+          </Text>
+        </Box>
+
+        <Box
+          display="flex"
+          flexDir="column"
+          p={3}
+          bg="#F8F8F8"
+          w="100%"
+          h="100%"
+          borderRadius="lg"
+          overflowY="hidden"
+        >
+          {chats ? (
+            <Stack overflowY="scroll">
+              {chats.map((chat) => (
+                <Box
+                  onClick={() => setSelectedChat(chat)}
+                  cursor="pointer"
+                  bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
+                  color={selectedChat === chat ? "white" : "black"}
+                  px={3}
+                  py={2}
+                  borderRadius="lg"
+                  key={chat._id}
+                >
+                  <Text>
+                    {!chat.isGroupChat
+                      ? getSender(loggedUser, chat.users)
+                      : chat.chatName}
+                  </Text>
+                </Box>
+              ))}
+            </Stack>
+          ) : (
+            <Text>Loading chats...</Text>
+          )}
+        </Box>
       </Box>
     </>
   );

@@ -7,7 +7,7 @@ const generateToken = (id) => {
   const token = jwt.sign({ id }, JWT_SECRET, {
     expiresIn: "30d",
   });
-  console.log(`Generated Token: ${token}`); // Log the generated token
+  // console.log(`Generated Token: ${token}`); // Log the generated token
   return token;
 };
 
